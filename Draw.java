@@ -11,19 +11,27 @@ import java.util.Random;
 import java.awt.Canvas;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 
 public class Draw extends Canvas implements Runnable{
 
 	public BufferedImage backgroundImage;
 	public static Player player;
+	private Camera cam;
+
 
 	public URL resource = getClass().getResource("stage1.jpg");
 	public boolean isRunning = false;
+	private boolean initial = false;
 	private Thread gameThread;
+
+	private ArrayList<Pipe> pipes = new ArrayList<Pipe>();
+	private Random rand = new Random();
 
 	public Draw(){
 
      	player = new Player(50, 300);
+     	cam = new Camera(0,0);
 
 
 
@@ -33,6 +41,36 @@ public class Draw extends Canvas implements Runnable{
 		catch(IOException e){
 			e.printStackTrace();
 		}
+
+		init();
+	}
+
+	private void init(){
+
+		for(int i = 1; i <= 100; i++){
+				int temp = rand.nextInt(5444);
+			if(temp >= 450){
+				pipes.add(new Pipe(temp));
+			}
+		}
+		initial = true;
+	}
+
+	private void drawPipes(Graphics g){
+
+		for(int i = 1; i <= pipes.size()-1; i++){
+			for(int yy = 1; yy <= pipes.size() - 1;yy++){
+				if(pipes.get(i).getBounds().intersects(pipes.get(yy).getBounds())){
+					pipes.remove(yy);
+
+				}
+
+
+			}
+
+			}
+			initial = false;
+
 	}
 
 	public synchronized void start(){
@@ -82,17 +120,35 @@ public class Draw extends Canvas implements Runnable{
 		BufferStrategy bs = this.getBufferStrategy();
 
 		if(bs == null){
-			this.createBufferStrategy(1);
+			this.createBufferStrategy(3);
 			return;
 		}
 
 		Graphics g = bs.getDrawGraphics();
 		g.drawRect(0, 0, 600, 600);
 
+		g.translate(cam.getX(), cam.getY());
+		/////////////////////////////////////////////
+
 		g.drawImage(backgroundImage, 0, 0, null);
-		g.drawImage(player.image, player.x, player.y, null);
+
+		if(initial == true){
+			drawPipes(g);
+		}
+
+		for(int i = 0; i < pipes.size()-1;i++){
+			pipes.get(i).render(g);
+		}
+		
 
 		player.jumpAnimation();
+
+
+
+
+		/////////////////////////////////////////////
+		g.translate(-cam.getX(), -cam.getY());
+		g.drawImage(player.image, player.x, player.y, null);
 
 		g.dispose();
 		bs.show();
@@ -102,6 +158,7 @@ public class Draw extends Canvas implements Runnable{
 	public void tick(){
 
 		player.gravity(player);
+		cam.tick(player);
 	}
 
 	public static void main(String args[]){

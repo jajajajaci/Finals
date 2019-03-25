@@ -55,7 +55,7 @@ public class Player{
 		}
 
 		height = image.getHeight();
-		width = image.getWidth() + 5;
+		width = image.getWidth();
 	}
 
 	public void collision(){
