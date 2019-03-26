@@ -12,17 +12,23 @@ import java.awt.Canvas;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 public class Draw extends Canvas implements Runnable{
 
 	public BufferedImage backgroundImage;
 	public static Player player;
 	private Camera cam;
+	private StartMenu startmenu;
+	private MouseInput mouse;
 
 
 	public URL resource = getClass().getResource("stage1.jpg");
 	public boolean isRunning = false;
 	private boolean initial = false;
+	protected boolean start = false;
 	private Thread gameThread;
 
 	private ArrayList<Pipe> pipes = new ArrayList<Pipe>();
@@ -30,8 +36,14 @@ public class Draw extends Canvas implements Runnable{
 
 	public Draw(){
 
+		mouse = new MouseInput();
+     	
+     	addMouseMotionListener(mouse);
+     	addMouseListener(mouse);
+
      	player = new Player(50, 300);
      	cam = new Camera(0,0);
+     	startmenu = new StartMenu(mouse, this);
 
 
 
@@ -69,6 +81,7 @@ public class Draw extends Canvas implements Runnable{
 			}
 
 			}
+
 			initial = false;
 
 	}
@@ -125,8 +138,11 @@ public class Draw extends Canvas implements Runnable{
 		}
 
 		Graphics g = bs.getDrawGraphics();
+
+		g.setColor(Color.BLACK);
 		g.drawRect(0, 0, 600, 600);
 
+		if(start == true){
 		g.translate(cam.getX(), cam.getY());
 		/////////////////////////////////////////////
 
@@ -141,25 +157,50 @@ public class Draw extends Canvas implements Runnable{
 		}
 		
 
+		
 		player.jumpAnimation();
-
 
 
 
 		/////////////////////////////////////////////
 		g.translate(-cam.getX(), -cam.getY());
 		g.drawImage(player.image, player.x, player.y, null);
+		player.render(g);
 
+		}else{
+
+			startmenu.render(g);
+		}
 		g.dispose();
 		bs.show();
 
 	}
 
+	public void collision(){
+
+
+		for(int i = 0; i < pipes.size(); i++){
+			Pipe temp = pipes.get(i);
+			System.out.println(i);
+
+			if(player.getBounds().intersects(temp.getBounds())){
+
+				System.out.println(temp.width+ "  " + temp.height);
+			}
+		}
+	}
+
 	public void tick(){
 
-		player.gravity(player);
-		cam.tick(player);
+		if(start == true){
+			player.gravity(player);
+			cam.tick(player);
+			collision();
+		}else{
+			startmenu.tick();
+		}
 	}
+
 
 	public static void main(String args[]){
 	 	new MyFrame(new Draw(), player); 

@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import javax.swing.Timer;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 public class Player{
 
@@ -14,12 +15,12 @@ public class Player{
 	public URL resource = getClass().getResource("dante.png");
 
 	public int speed = 3;
-	public int x = 30;
-	public int y = 30;
-	public int velX= 1;
-	public int velY = 1;
-    public int height = 0;
-    public int width = 0;
+	public int x;
+	public int y;;
+	public int velX;
+	public int velY;
+    public int height;
+    public int width;
     public int state = 0;
     public int gravity = 1;
     public int ctr = 1;
@@ -62,8 +63,10 @@ public class Player{
 
 	}
 
+
+
 	public void jumpAnimation(){
-	
+
 		if(isJumping == true){
 			if(ctr==4){
 				resource = getClass().getResource("dante.png");
@@ -80,6 +83,14 @@ public class Player{
 		}	
 	}
 
+	public void render(Graphics g){
+
+		Graphics2D g2d = (Graphics2D)g;
+
+		g2d.draw(getBounds());
+
+	}
+
 	public void gravity(Player object){
 		
 		y+=velY;
@@ -92,6 +103,10 @@ public class Player{
 				}
 			}
 	}	
+
+	public Rectangle getBounds(){
+		return (new Rectangle(x, y, width, height));
+	}
 
 	public void setVelY(int velY){
 		this.velY = velY;

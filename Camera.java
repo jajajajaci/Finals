@@ -17,6 +17,7 @@ public class Camera{
 		this.player = player;
 
 		x--;
+		
 	}
 
 	public int getX(){
